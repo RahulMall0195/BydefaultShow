@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Salary Analysis Dashboard</title>
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,Helvetica,sans-serif;background:#f5f6f8;color:#20242a}
@@ -14,6 +13,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f6f8;color:#20242a}
 .header p{font-size:13px;color:#777;margin-top:5px}
 .container{max-width:1250px;margin:auto;padding:25px}
 .status{background:#fff;border:1px solid #ddd;border-radius:7px;padding:12px 15px;margin-bottom:20px;font-size:13px;color:#666}
+.status.error{color:#c62828}
 .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:20px}
 .card{background:#fff;border:1px solid #ddd;border-radius:8px;padding:20px}
 .card-title{font-size:12px;color:#777;margin-bottom:9px}
@@ -44,7 +44,6 @@ tr:hover td{background:#fafafa}
 .badge{padding:4px 8px;border-radius:4px;background:#e8f7ee;color:#14833e;font-size:10px}
 .footer{text-align:center;color:#999;font-size:11px;padding:25px}
 .loading{text-align:center;padding:30px;color:#777}
-.error{color:#c62828}
 @media(max-width:950px){
 .cards{grid-template-columns:repeat(2,1fr)}
 .grid{grid-template-columns:1fr}
@@ -57,7 +56,6 @@ tr:hover td{background:#fafafa}
 }
 </style>
 </head>
-
 <body>
 
 <div class="header">
@@ -67,10 +65,9 @@ tr:hover td{background:#fafafa}
 
 <div class="container">
 
-<div class="status" id="status">Connecting to database...</div>
+<div class="status" id="status">Connecting to salary database...</div>
 
 <div class="cards">
-
 <div class="card">
 <div class="card-title">TOTAL EMPLOYEES</div>
 <div class="card-value blue" id="totalEmployees">0</div>
@@ -90,7 +87,6 @@ tr:hover td{background:#fafafa}
 <div class="card-title">AVERAGE MONTHLY GROSS</div>
 <div class="card-value" id="averageGross">₹0</div>
 </div>
-
 </div>
 
 <div class="grid">
@@ -106,58 +102,23 @@ tr:hover td{background:#fafafa}
 <div class="box">
 <h2>Salary Summary</h2>
 
-<div class="stat">
-<span>Basic Salary</span>
-<strong id="basicSalary">₹0</strong>
-</div>
-
-<div class="stat">
-<span>HRA</span>
-<strong id="hra">₹0</strong>
-</div>
-
-<div class="stat">
-<span>DA</span>
-<strong id="da">₹0</strong>
-</div>
-
-<div class="stat">
-<span>Medical</span>
-<strong id="medical">₹0</strong>
-</div>
-
-<div class="stat">
-<span>Transport</span>
-<strong id="transport">₹0</strong>
-</div>
-
-<div class="stat">
-<span>PF Deduction</span>
-<strong id="pf">₹0</strong>
-</div>
-
-<div class="stat">
-<span>ESIC Deduction</span>
-<strong id="esic">₹0</strong>
-</div>
-
-<div class="stat">
-<span>Employer PF</span>
-<strong id="employerPF">₹0</strong>
-</div>
-
+<div class="stat"><span>Basic Salary</span><strong id="basicSalary">₹0</strong></div>
+<div class="stat"><span>HRA</span><strong id="hra">₹0</strong></div>
+<div class="stat"><span>DA</span><strong id="da">₹0</strong></div>
+<div class="stat"><span>Medical</span><strong id="medical">₹0</strong></div>
+<div class="stat"><span>Transport</span><strong id="transport">₹0</strong></div>
+<div class="stat"><span>PF Deduction</span><strong id="pf">₹0</strong></div>
+<div class="stat"><span>ESIC Deduction</span><strong id="esic">₹0</strong></div>
+<div class="stat"><span>Employer PF</span><strong id="employerPF">₹0</strong></div>
 </div>
 
 </div>
 
 <div class="table-box">
-
 <h2>Employee Salary Details</h2>
 
 <div class="table-wrap">
-
 <table>
-
 <thead>
 <tr>
 <th>Employee ID</th>
@@ -171,35 +132,25 @@ tr:hover td{background:#fafafa}
 </thead>
 
 <tbody id="employeeTable">
-
 <tr>
 <td colspan="7" class="loading">Loading data...</td>
 </tr>
-
 </tbody>
-
 </table>
-
+</div>
 </div>
 
-</div>
-
-<div class="footer">
-Salary Analysis Dashboard
-</div>
+<div class="footer">Salary Analysis Dashboard</div>
 
 </div>
 
 <script>
 
-const API_URL="https://championsera.com/salary_dashboard_api.php";
+const API_URL="https://www.championsera.com/salary_dashboard_api.php";
+const API_KEY="abcdef12345";
 
 function money(value){
-return new Intl.NumberFormat("en-IN",{
-style:"currency",
-currency:"INR",
-maximumFractionDigits:0
-}).format(Number(value)||0);
+return new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(Number(value)||0);
 }
 
 function number(value){
@@ -213,27 +164,39 @@ if(element)element.textContent=value;
 
 async function loadDashboard(){
 
+const status=document.getElementById("status");
+
 try{
 
-const response=await fetch(API_URL+"?t="+Date.now(),{
+status.className="status";
+status.textContent="Connecting to salary database...";
+
+const url=API_URL+"?key="+encodeURIComponent(API_KEY)+"&t="+Date.now();
+
+const response=await fetch(url,{
 method:"GET",
 cache:"no-store"
 });
 
 if(!response.ok){
+
+if(response.status===401){
+throw new Error("Unauthorized API request. Please check the API key.");
+}
+
 throw new Error("API returned HTTP "+response.status);
 }
 
 const data=await response.json();
 
 if(!data.success){
-throw new Error(data.message||"API error");
+throw new Error(data.message||"API returned an error.");
 }
 
 const s=data.summary;
 
-setText("status","● Database connected · Updated "+data.generated_at);
-document.getElementById("status").style.color="#14833e";
+status.textContent="● Database connected · Updated "+data.generated_at;
+status.style.color="#14833e";
 
 setText("totalEmployees",number(s.total_employees));
 setText("monthlyGross",money(s.total_monthly_gross));
@@ -254,12 +217,10 @@ createEmployeeTable(data.employees);
 
 }catch(error){
 
-console.error(error);
+console.error("Salary API Error:",error);
 
-const status=document.getElementById("status");
-
-status.textContent="Unable to connect to the API: "+error.message;
 status.className="status error";
+status.textContent="Unable to connect to the API: "+error.message;
 
 }
 
@@ -274,18 +235,16 @@ chart.innerHTML="";
 labels.innerHTML="";
 
 if(!roles||roles.length===0){
-
 chart.innerHTML='<div class="loading">No role data available</div>';
 return;
-
 }
 
-const max=Math.max(...roles.map(x=>Number(x.monthly_gross)||0));
+const displayRoles=roles.slice(0,6);
+const max=Math.max(...displayRoles.map(x=>Number(x.monthly_gross)||0));
 
-roles.slice(0,6).forEach(function(item){
+displayRoles.forEach(function(item){
 
 const value=Number(item.monthly_gross)||0;
-
 const height=max>0?(value/max)*220:3;
 
 const barItem=document.createElement("div");
@@ -300,11 +259,8 @@ barItem.appendChild(bar);
 chart.appendChild(barItem);
 
 const label=document.createElement("span");
-
 label.textContent=item.role.length>12?item.role.substring(0,12)+"...":item.role;
-
 label.title=item.role;
-
 labels.appendChild(label);
 
 });
