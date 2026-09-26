@@ -1,0 +1,1136 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+    --bg:#f5f7fb;
+    --card:#ffffff;
+    --text:#172033;
+    --muted:#7c879c;
+    --border:#e9edf4;
+    --primary:#635bff;
+    --primary2:#8b5cf6;
+    --green:#16a34a;
+    --red:#ef4444;
+    --orange:#f59e0b;
+    --blue:#2563eb;
+    --shadow:0 10px 35px rgba(31,41,55,.07);
+}
+body{
+    font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+}
+button{font-family:inherit}
+.app{
+    display:flex;
+    min-height:100vh;
+}
+.sidebar{
+    width:250px;
+    background:#111827;
+    color:#fff;
+    position:fixed;
+    left:0;
+    top:0;
+    bottom:0;
+    z-index:1000;
+    padding:24px 16px;
+    transition:.3s ease;
+}
+.logo{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    font-size:20px;
+    font-weight:800;
+    padding:5px 10px 28px;
+}
+.logo-icon{
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    display:grid;
+    place-items:center;
+    background:linear-gradient(135deg,#635bff,#a855f7);
+    box-shadow:0 8px 22px rgba(99,91,255,.35);
+}
+.nav-title{
+    font-size:10px;
+    color:#7f8aa3;
+    font-weight:700;
+    letter-spacing:1.5px;
+    padding:14px 12px 9px;
+}
+.nav a{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    text-decoration:none;
+    color:#aeb8ca;
+    padding:12px 13px;
+    border-radius:10px;
+    margin-bottom:4px;
+    font-size:14px;
+    transition:.2s;
+}
+.nav a:hover,.nav a.active{
+    color:#fff;
+    background:rgba(255,255,255,.09);
+}
+.nav a.active{
+    background:linear-gradient(90deg,rgba(99,91,255,.28),rgba(99,91,255,.08));
+}
+.nav-icon{
+    width:20px;
+    text-align:center;
+    font-size:16px;
+}
+.sidebar-bottom{
+    position:absolute;
+    left:16px;
+    right:16px;
+    bottom:20px;
+}
+.profile{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px;
+    border-top:1px solid rgba(255,255,255,.08);
+}
+.avatar{
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#f59e0b,#ef4444);
+    display:grid;
+    place-items:center;
+    font-weight:800;
+    font-size:12px;
+}
+.profile-info strong{
+    display:block;
+    font-size:13px;
+}
+.profile-info span{
+    color:#7f8aa3;
+    font-size:11px;
+}
+.main{
+    margin-left:250px;
+    width:calc(100% - 250px);
+    min-width:0;
+}
+.topbar{
+    height:76px;
+    background:#fff;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 32px;
+    position:sticky;
+    top:0;
+    z-index:500;
+}
+.page-title h1{
+    font-size:21px;
+    font-weight:800;
+}
+.page-title p{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:4px;
+}
+.top-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.search{
+    height:39px;
+    width:220px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:0 12px;
+    background:#fafbfc;
+}
+.search input{
+    width:100%;
+    border:0;
+    outline:0;
+    background:transparent;
+    font-size:12px;
+}
+.icon-btn{
+    width:39px;
+    height:39px;
+    border:1px solid var(--border);
+    background:#fff;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+}
+.date-btn{
+    height:39px;
+    padding:0 13px;
+    border:1px solid var(--border);
+    background:#fff;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:12px;
+    font-weight:600;
+}
+.content{
+    padding:28px 32px 35px;
+}
+.welcome{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:24px;
+}
+.welcome h2{
+    font-size:22px;
+    font-weight:800;
+}
+.welcome p{
+    margin-top:5px;
+    color:var(--muted);
+    font-size:13px;
+}
+.export-btn{
+    border:0;
+    color:#fff;
+    background:linear-gradient(135deg,var(--primary),var(--primary2));
+    padding:11px 17px;
+    border-radius:10px;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 8px 20px rgba(99,91,255,.2);
+}
+.kpis{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:17px;
+    margin-bottom:20px;
+}
+.card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:15px;
+    box-shadow:var(--shadow);
+}
+.kpi{
+    padding:19px;
+    position:relative;
+    overflow:hidden;
+}
+.kpi-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.kpi-title{
+    color:var(--muted);
+    font-size:12px;
+    font-weight:600;
+}
+.kpi-icon{
+    width:36px;
+    height:36px;
+    border-radius:10px;
+    display:grid;
+    place-items:center;
+    font-size:16px;
+}
+.purple{background:#efedff;color:#635bff}
+.green{background:#e9f9ef;color:#16a34a}
+.orange{background:#fff6df;color:#d97706}
+.blue{background:#eaf2ff;color:#2563eb}
+.kpi-value{
+    font-size:25px;
+    font-weight:800;
+    margin-top:15px;
+}
+.kpi-bottom{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    margin-top:8px;
+    font-size:11px;
+}
+.up{color:var(--green);font-weight:700}
+.down{color:var(--red);font-weight:700}
+.muted{color:var(--muted)}
+.grid-main{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:20px;
+    margin-bottom:20px;
+}
+.chart-card{
+    padding:20px;
+    min-width:0;
+}
+.card-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:18px;
+}
+.card-head h3{
+    font-size:15px;
+    font-weight:800;
+}
+.card-head p{
+    color:var(--muted);
+    font-size:11px;
+    margin-top:4px;
+}
+.select{
+    border:1px solid var(--border);
+    background:#fff;
+    padding:7px 10px;
+    border-radius:8px;
+    font-size:11px;
+    outline:0;
+}
+.chart-wrap{
+    height:285px;
+    position:relative;
+}
+.bottom-grid{
+    display:grid;
+    grid-template-columns:1.2fr 1fr 1fr;
+    gap:20px;
+}
+.source-list{
+    display:flex;
+    flex-direction:column;
+    gap:17px;
+}
+.source-row{
+    display:flex;
+    align-items:center;
+    gap:11px;
+}
+.source-icon{
+    width:34px;
+    height:34px;
+    border-radius:9px;
+    display:grid;
+    place-items:center;
+    font-size:13px;
+    font-weight:800;
+}
+.source-info{
+    flex:1;
+    min-width:0;
+}
+.source-name{
+    display:flex;
+    justify-content:space-between;
+    font-size:11px;
+    margin-bottom:6px;
+}
+.source-name strong{font-weight:700}
+.progress{
+    height:6px;
+    border-radius:20px;
+    background:#edf0f5;
+    overflow:hidden;
+}
+.progress span{
+    display:block;
+    height:100%;
+    border-radius:20px;
+    background:linear-gradient(90deg,#635bff,#8b5cf6);
+}
+.device-chart{
+    height:190px;
+    position:relative;
+}
+.device-legend{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:9px;
+    margin-top:8px;
+}
+.legend-item{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-size:11px;
+    color:var(--muted);
+}
+.dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#635bff;
+}
+.activity{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+}
+.activity-row{
+    display:flex;
+    gap:10px;
+}
+.activity-dot{
+    width:29px;
+    height:29px;
+    border-radius:9px;
+    display:grid;
+    place-items:center;
+    background:#f1efff;
+    color:#635bff;
+    font-size:12px;
+    flex:none;
+}
+.activity-text{
+    font-size:11px;
+    line-height:1.45;
+}
+.activity-text strong{font-weight:700}
+.activity-text span{
+    display:block;
+    color:var(--muted);
+    margin-top:2px;
+}
+.table-card{
+    margin-top:20px;
+    padding:20px;
+}
+.table-wrap{
+    overflow-x:auto;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:650px;
+}
+th{
+    text-align:left;
+    font-size:10px;
+    color:#8993a5;
+    text-transform:uppercase;
+    letter-spacing:.7px;
+    padding:11px 10px;
+    border-bottom:1px solid var(--border);
+}
+td{
+    padding:14px 10px;
+    font-size:11px;
+    border-bottom:1px solid #f0f2f6;
+}
+.user{
+    display:flex;
+    align-items:center;
+    gap:9px;
+}
+.user-avatar{
+    width:29px;
+    height:29px;
+    border-radius:50%;
+    display:grid;
+    place-items:center;
+    background:#ede9fe;
+    color:#635bff;
+    font-size:10px;
+    font-weight:800;
+}
+.status{
+    display:inline-flex;
+    align-items:center;
+    padding:5px 8px;
+    border-radius:20px;
+    font-size:9px;
+    font-weight:700;
+}
+.status.success{
+    color:#15803d;
+    background:#eaf8ee;
+}
+.status.pending{
+    color:#b45309;
+    background:#fff5dc;
+}
+.status.failed{
+    color:#b91c1c;
+    background:#feecec;
+}
+.mobile-menu{
+    display:none;
+}
+.overlay{
+    display:none;
+}
+@media(max-width:1100px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .grid-main{grid-template-columns:1fr}
+    .bottom-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:800px){
+    .sidebar{
+        transform:translateX(-100%);
+    }
+    .sidebar.open{
+        transform:translateX(0);
+    }
+    .main{
+        margin-left:0;
+        width:100%;
+    }
+    .mobile-menu{
+        display:grid;
+        place-items:center;
+        width:38px;
+        height:38px;
+        border:1px solid var(--border);
+        border-radius:9px;
+        background:#fff;
+        cursor:pointer;
+        margin-right:10px;
+    }
+    .topbar{
+        padding:0 18px;
+    }
+    .page-title{
+        display:flex;
+        align-items:center;
+    }
+    .search{
+        display:none;
+    }
+    .overlay.active{
+        display:block;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,.35);
+        z-index:900;
+    }
+    .content{
+        padding:22px 18px;
+    }
+    .bottom-grid{grid-template-columns:1fr}
+}
+@media(max-width:550px){
+    .kpis{grid-template-columns:1fr}
+    .welcome{
+        align-items:flex-start;
+        gap:15px;
+        flex-direction:column;
+    }
+    .welcome h2{font-size:20px}
+    .date-btn{display:none}
+    .top-actions .icon-btn{display:none}
+    .topbar{height:68px}
+    .chart-wrap{height:240px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<aside class="sidebar" id="sidebar">
+
+    <div class="logo">
+        <div class="logo-icon">✦</div>
+        <span>Insight<span style="color:#8b7cff">X</span></span>
+    </div>
+
+    <div class="nav-title">MAIN MENU</div>
+
+    <nav class="nav">
+        <a href="#" class="active"><span class="nav-icon">▦</span>Dashboard</a>
+        <a href="#"><span class="nav-icon">⌁</span>Analytics</a>
+        <a href="#"><span class="nav-icon">◉</span>Customers</a>
+        <a href="#"><span class="nav-icon">▤</span>Reports</a>
+        <a href="#"><span class="nav-icon">◫</span>Transactions</a>
+    </nav>
+
+    <div class="nav-title">MANAGEMENT</div>
+
+    <nav class="nav">
+        <a href="#"><span class="nav-icon">⚙</span>Settings</a>
+        <a href="#"><span class="nav-icon">?</span>Help Center</a>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <div class="profile">
+            <div class="avatar">RK</div>
+            <div class="profile-info">
+                <strong>Rahul Kumar</strong>
+                <span>Administrator</span>
+            </div>
+        </div>
+    </div>
+
+</aside>
+
+<div class="overlay" id="overlay"></div>
+
+<main class="main">
+
+<header class="topbar">
+
+    <div class="page-title">
+        <button class="mobile-menu" id="mobileMenu">☰</button>
+        <div>
+            <h1>Analytics Overview</h1>
+            <p>Monitor your business performance</p>
+        </div>
+    </div>
+
+    <div class="top-actions">
+
+        <div class="search">
+            <span>⌕</span>
+            <input type="text" placeholder="Search analytics...">
+        </div>
+
+        <button class="icon-btn">♢</button>
+
+        <button class="date-btn">Last 30 Days ▾</button>
+
+    </div>
+
+</header>
+
+<section class="content">
+
+    <div class="welcome">
+        <div>
+            <h2>Good afternoon, Rahul 👋</h2>
+            <p>Here's what's happening with your business today.</p>
+        </div>
+        <button class="export-btn" onclick="exportReport()">↓ Export Report</button>
+    </div>
+
+    <div class="kpis">
+
+        <div class="card kpi">
+            <div class="kpi-top">
+                <span class="kpi-title">TOTAL REVENUE</span>
+                <div class="kpi-icon purple">₹</div>
+            </div>
+            <div class="kpi-value">₹24,68,420</div>
+            <div class="kpi-bottom">
+                <span class="up">↑ 18.4%</span>
+                <span class="muted">vs last month</span>
+            </div>
+        </div>
+
+        <div class="card kpi">
+            <div class="kpi-top">
+                <span class="kpi-title">TOTAL USERS</span>
+                <div class="kpi-icon blue">♙</div>
+            </div>
+            <div class="kpi-value">48,294</div>
+            <div class="kpi-bottom">
+                <span class="up">↑ 12.8%</span>
+                <span class="muted">vs last month</span>
+            </div>
+        </div>
+
+        <div class="card kpi">
+            <div class="kpi-top">
+                <span class="kpi-title">ORDERS</span>
+                <div class="kpi-icon orange">◈</div>
+            </div>
+            <div class="kpi-value">12,846</div>
+            <div class="kpi-bottom">
+                <span class="up">↑ 8.6%</span>
+                <span class="muted">vs last month</span>
+            </div>
+        </div>
+
+        <div class="card kpi">
+            <div class="kpi-top">
+                <span class="kpi-title">CONVERSION RATE</span>
+                <div class="kpi-icon green">%</div>
+            </div>
+            <div class="kpi-value">6.84%</div>
+            <div class="kpi-bottom">
+                <span class="down">↓ 1.2%</span>
+                <span class="muted">vs last month</span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="grid-main">
+
+        <div class="card chart-card">
+
+            <div class="card-head">
+                <div>
+                    <h3>Revenue Analytics</h3>
+                    <p>Revenue performance over the selected period</p>
+                </div>
+
+                <select class="select" id="chartPeriod">
+                    <option>Last 30 Days</option>
+                    <option>Last 7 Days</option>
+                    <option>Last 12 Months</option>
+                </select>
+            </div>
+
+            <div class="chart-wrap">
+                <canvas id="revenueChart"></canvas>
+            </div>
+
+        </div>
+
+        <div class="card chart-card">
+
+            <div class="card-head">
+                <div>
+                    <h3>Performance</h3>
+                    <p>Current monthly target</p>
+                </div>
+            </div>
+
+            <div class="chart-wrap">
+                <canvas id="performanceChart"></canvas>
+            </div>
+
+            <div style="text-align:center;margin-top:-25px;">
+                <strong style="font-size:24px;">78%</strong>
+                <div style="font-size:11px;color:#8993a5;margin-top:3px;">Monthly Target</div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="bottom-grid">
+
+        <div class="card chart-card">
+
+            <div class="card-head">
+                <div>
+                    <h3>Traffic Sources</h3>
+                    <p>Where your visitors come from</p>
+                </div>
+            </div>
+
+            <div class="source-list">
+
+                <div class="source-row">
+                    <div class="source-icon" style="background:#eeeefe;color:#635bff">G</div>
+                    <div class="source-info">
+                        <div class="source-name">
+                            <strong>Google</strong>
+                            <span>42%</span>
+                        </div>
+                        <div class="progress"><span style="width:42%"></span></div>
+                    </div>
+                </div>
+
+                <div class="source-row">
+                    <div class="source-icon" style="background:#eaf3ff;color:#2563eb">F</div>
+                    <div class="source-info">
+                        <div class="source-name">
+                            <strong>Facebook</strong>
+                            <span>27%</span>
+                        </div>
+                        <div class="progress"><span style="width:27%"></span></div>
+                    </div>
+                </div>
+
+                <div class="source-row">
+                    <div class="source-icon" style="background:#edf8f1;color:#16a34a">I</div>
+                    <div class="source-info">
+                        <div class="source-name">
+                            <strong>Instagram</strong>
+                            <span>18%</span>
+                        </div>
+                        <div class="progress"><span style="width:18%"></span></div>
+                    </div>
+                </div>
+
+                <div class="source-row">
+                    <div class="source-icon" style="background:#fff4e6;color:#d97706">D</div>
+                    <div class="source-info">
+                        <div class="source-name">
+                            <strong>Direct</strong>
+                            <span>13%</span>
+                        </div>
+                        <div class="progress"><span style="width:13%"></span></div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card chart-card">
+
+            <div class="card-head">
+                <div>
+                    <h3>Users by Device</h3>
+                    <p>Device distribution</p>
+                </div>
+            </div>
+
+            <div class="device-chart">
+                <canvas id="deviceChart"></canvas>
+            </div>
+
+            <div class="device-legend">
+                <div class="legend-item"><span class="dot"></span>Desktop 48%</div>
+                <div class="legend-item"><span class="dot" style="background:#8b5cf6"></span>Mobile 38%</div>
+                <div class="legend-item"><span class="dot" style="background:#f59e0b"></span>Tablet 14%</div>
+                <div class="legend-item"><span class="dot" style="background:#e5e7eb"></span>Other 2%</div>
+            </div>
+
+        </div>
+
+        <div class="card chart-card">
+
+            <div class="card-head">
+                <div>
+                    <h3>Recent Activity</h3>
+                    <p>Latest account activity</p>
+                </div>
+            </div>
+
+            <div class="activity">
+
+                <div class="activity-row">
+                    <div class="activity-dot">✓</div>
+                    <div class="activity-text">
+                        <strong>New order received</strong>
+                        <span>Order #INV-8249 · 5 min ago</span>
+                    </div>
+                </div>
+
+                <div class="activity-row">
+                    <div class="activity-dot">+</div>
+                    <div class="activity-text">
+                        <strong>New customer registered</strong>
+                        <span>Arjun Mehta · 18 min ago</span>
+                    </div>
+                </div>
+
+                <div class="activity-row">
+                    <div class="activity-dot">₹</div>
+                    <div class="activity-text">
+                        <strong>Payment received</strong>
+                        <span>₹18,500 · 42 min ago</span>
+                    </div>
+                </div>
+
+                <div class="activity-row">
+                    <div class="activity-dot">↑</div>
+                    <div class="activity-text">
+                        <strong>Monthly target updated</strong>
+                        <span>Target increased by 8% · 1 hr ago</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card table-card">
+
+        <div class="card-head">
+            <div>
+                <h3>Recent Transactions</h3>
+                <p>Latest customer transactions</p>
+            </div>
+
+            <button class="select" onclick="viewAll()">View All →</button>
+        </div>
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Transaction ID</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>
+                            <div class="user">
+                                <div class="user-avatar">AM</div>
+                                <strong>Arjun Mehta</strong>
+                            </div>
+                        </td>
+                        <td>#TXN-82941</td>
+                        <td>26 Sep 2026</td>
+                        <td><strong>₹18,500</strong></td>
+                        <td><span class="status success">Completed</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <div class="user">
+                                <div class="user-avatar">PS</div>
+                                <strong>Priya Shah</strong>
+                            </div>
+                        </td>
+                        <td>#TXN-82940</td>
+                        <td>26 Sep 2026</td>
+                        <td><strong>₹9,850</strong></td>
+                        <td><span class="status success">Completed</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <div class="user">
+                                <div class="user-avatar">RV</div>
+                                <strong>Rahul Verma</strong>
+                            </div>
+                        </td>
+                        <td>#TXN-82939</td>
+                        <td>25 Sep 2026</td>
+                        <td><strong>₹24,200</strong></td>
+                        <td><span class="status pending">Pending</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <div class="user">
+                                <div class="user-avatar">NK</div>
+                                <strong>Neha Kapoor</strong>
+                            </div>
+                        </td>
+                        <td>#TXN-82938</td>
+                        <td>25 Sep 2026</td>
+                        <td><strong>₹7,650</strong></td>
+                        <td><span class="status success">Completed</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <div class="user">
+                                <div class="user-avatar">VS</div>
+                                <strong>Vikram Singh</strong>
+                            </div>
+                        </td>
+                        <td>#TXN-82937</td>
+                        <td>24 Sep 2026</td>
+                        <td><strong>₹12,400</strong></td>
+                        <td><span class="status failed">Failed</span></td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+</div>
+
+<script>
+
+const revenueCanvas=document.getElementById("revenueChart");
+
+new Chart(revenueCanvas,{
+    type:"line",
+    data:{
+        labels:["01 Sep","03 Sep","05 Sep","07 Sep","09 Sep","11 Sep","13 Sep","15 Sep","17 Sep","19 Sep","21 Sep","23 Sep","25 Sep","26 Sep"],
+        datasets:[
+            {
+                label:"Revenue",
+                data:[42,48,44,61,58,72,69,82,76,91,88,105,98,118],
+                borderColor:"#635bff",
+                backgroundColor:"rgba(99,91,255,.10)",
+                fill:true,
+                tension:.4,
+                borderWidth:3,
+                pointRadius:0,
+                pointHoverRadius:5
+            },
+            {
+                label:"Previous Period",
+                data:[35,41,40,50,49,56,53,64,61,72,68,78,73,84],
+                borderColor:"#cfd4df",
+                backgroundColor:"transparent",
+                fill:false,
+                tension:.4,
+                borderWidth:2,
+                borderDash:[5,5],
+                pointRadius:0
+            }
+        ]
+    },
+    options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        interaction:{
+            intersect:false,
+            mode:"index"
+        },
+        plugins:{
+            legend:{
+                position:"bottom",
+                labels:{
+                    usePointStyle:true,
+                    boxWidth:7,
+                    padding:20,
+                    font:{size:10}
+                }
+            }
+        },
+        scales:{
+            x:{
+                grid:{display:false},
+                ticks:{
+                    color:"#9aa3b4",
+                    font:{size:10}
+                }
+            },
+            y:{
+                beginAtZero:true,
+                grid:{
+                    color:"#eef0f5"
+                },
+                ticks:{
+                    color:"#9aa3b4",
+                    font:{size:10},
+                    callback:function(value){
+                        return "₹"+value+"K";
+                    }
+                }
+            }
+        }
+    }
+});
+
+new Chart(document.getElementById("performanceChart"),{
+    type:"doughnut",
+    data:{
+        labels:["Achieved","Remaining"],
+        datasets:[{
+            data:[78,22],
+            backgroundColor:["#635bff","#eeeef5"],
+            borderWidth:0,
+            cutout:"78%"
+        }]
+    },
+    options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+            legend:{display:false},
+            tooltip:{enabled:false}
+        }
+    }
+});
+
+new Chart(document.getElementById("deviceChart"),{
+    type:"doughnut",
+    data:{
+        labels:["Desktop","Mobile","Tablet","Other"],
+        datasets:[{
+            data:[48,38,14,2],
+            backgroundColor:["#635bff","#8b5cf6","#f59e0b","#e5e7eb"],
+            borderWidth:0,
+            hoverOffset:5
+        }]
+    },
+    options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        cutout:"68%",
+        plugins:{
+            legend:{display:false}
+        }
+    }
+});
+
+document.getElementById("mobileMenu").addEventListener("click",function(){
+    document.getElementById("sidebar").classList.toggle("open");
+    document.getElementById("overlay").classList.toggle("active");
+});
+
+document.getElementById("overlay").addEventListener("click",function(){
+    document.getElementById("sidebar").classList.remove("open");
+    document.getElementById("overlay").classList.remove("active");
+});
+
+document.querySelectorAll(".nav a").forEach(function(link){
+    link.addEventListener("click",function(e){
+        e.preventDefault();
+        document.querySelectorAll(".nav a").forEach(function(item){
+            item.classList.remove("active");
+        });
+        this.classList.add("active");
+    });
+});
+
+document.getElementById("chartPeriod").addEventListener("change",function(){
+    const title=this.value;
+    console.log("Selected:",title);
+});
+
+function exportReport(){
+    const report={
+        revenue:"₹24,68,420",
+        users:48294,
+        orders:12846,
+        conversion:"6.84%"
+    };
+
+    const blob=new Blob(
+        [JSON.stringify(report,null,2)],
+        {type:"application/json"}
+    );
+
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    a.download="analytics-report.json";
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function viewAll(){
+    alert("Opening all transactions...");
+}
+
+</script>
+
+</body>
+</html>
+```
