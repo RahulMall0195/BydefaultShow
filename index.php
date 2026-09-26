@@ -192,7 +192,7 @@ Salary Analysis Dashboard
 
 <script>
 
-const API_URL="https://YOUR-DOMAIN.COM/salary_dashboard_api.php";
+const API_URL="https://www.championsera.com/salary_dashboard_api.php";
 
 function money(value){
 return new Intl.NumberFormat("en-IN",{
@@ -363,4 +363,3 @@ setInterval(loadDashboard,60000);
 
 </body>
 </html>
-
